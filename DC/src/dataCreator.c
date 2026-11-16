@@ -1,7 +1,9 @@
-#include <stdio.h>
+#include "messages.c"
+#include "rand.c"
+
 /*
 * File         :
-*   dataReader.c
+*   dataCreator.c
 * Project      :
 *   Hoochamacallit
 * Programmers  :
@@ -12,7 +14,11 @@
 *   
 */
 
-
 int main() {
-    
+    loop();
+    if (msgActual);
+    // Call msgTime(), int returned is num seconds to sleep.
+    // Call msgActual(), int returned is status to communicate to DR.
+    // If msgActual() returns 0, send message, then exit.
+    msgsnd(mid, &(Envelope){0}, sizeof(aMessage), 0);
 }
