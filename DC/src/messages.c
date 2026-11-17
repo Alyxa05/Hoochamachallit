@@ -28,11 +28,14 @@ typedef struct tagAMESSAGE {
 } aMessage;
 
 // Won't let me declare the struct with a title(?)
-typedef struct {
-    long type;
-    aMessage data;
+typedef struct tagMSGENVELOPE {
+    long theType;
+    aMessage theData;
 } Envelope;
 
+
+// Erik use this to make your queue if you want
+/*
 int makeQueue() {
     if (!hooch_key) {
         hooch_key = ftok("../../", 'H');
@@ -42,7 +45,7 @@ int makeQueue() {
     }
     return 0;
 }
-
+*/
 void loop() {
     while (!mid) {
         sleep(10);
