@@ -1,4 +1,3 @@
-#include <stdio.h>
 /*
 * File         :
 *   dataCorrupter.c
@@ -11,6 +10,8 @@
 * Description  :
 *   
 */
+#include <stdio.h>
+
 
 
 
