@@ -15,6 +15,7 @@
 * Description  :
 *   
 */
+// use #include "../../Common/src/messages.c"
 
 key_t hooch_key;
 int mid;
@@ -27,7 +28,6 @@ typedef struct tagAMESSAGE {
     char rString[128];
 } aMessage;
 
-// Won't let me declare the struct with a title(?)
 typedef struct tagMSGENVELOPE {
     long theType;
     aMessage theData;

@@ -1,4 +1,4 @@
-#include "messages.c"
+#include "../../Common/src/messages.c"
 #include "rand.c"
 
 /*
@@ -15,8 +15,12 @@
 */
 
 int main() {
-    loop();
-    if (msgActual);
+    if (!msgID) {
+        loop();
+    } else {
+        // Call rand to get time between messages and message type
+        // then send and repeat
+    }
     // Call msgTime(), int returned is num seconds to sleep.
     // Call msgActual(), int returned is status to communicate to DR.
     // If msgActual() returns 0, send message, then exit.
