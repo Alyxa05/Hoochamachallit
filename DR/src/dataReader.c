@@ -45,7 +45,7 @@ int main(void)
     msgQId = msgget(ipcKey, 0);
     if (msgQId == -1)
     {
-        msgQId = msgget(ipcKey, IPC_CREAT | 0666);
+        msgQId = msgget(ipcKey, IPC_CREAT | 0660);
         if (msgQId == -1)
         {
             perror("(DR) msgget failed");
@@ -54,7 +54,7 @@ int main(void)
     }
 
     // Allocate shared memory for the master list
-    shmId = shmget(ipcKey, sizeof(MasterList), IPC_CREAT | 0666);
+    shmId = shmget(ipcKey, sizeof(MasterList), IPC_CREAT | 0660);
     if (shmId == -1)
     {
         perror("(DR) shmet failed");
@@ -84,4 +84,46 @@ int main(void)
     msgctl(msgQId, IPC_RMID, NULL);
 
     return 0;
+}
+// Temp loop pulling any waiting messages and track seen DC PIDs
+while (1)
+{
+    MachineMsg msg;
+
+    // Loop while messages are sitting in the queue
+    while (msgrcv(msgQId, &msg, sizeof(msg) - sizeof(long), 0, IPC_NOWAIT) != -1)
+    {
+        int foundIndex = -1;
+        int i;
+        time_t now = time(NULL);
+
+        // Checking if we already have this DC PID in the master list
+        for (i = 0; i < master->numberOfDCs; i++)
+        {
+            if (master->dc[i].dcProcessID == msg.machinePid)
+            {
+                foundIndex = i;
+                break;
+            }
+        }
+
+        if (foundIndex != -1)
+        {
+            master->dc[foundIndex].lastTimeHeardFrom = now;
+        }
+        else if (master->numberOfDCs < MAX_DC_ROLES)
+        {
+            master->dc[master->numberOfDCs].dcProcessID = msg.machinePid;
+            master->dc[master->numberOfDCs].lastTimeHeardFrom = now;
+            master->numberOfDCs++;
+        }
+    }
+
+    if (errno != ENOMSG)
+    {
+        perror("(DR) msgrcv failed");
+        break;
+    }
+
+    sleep(1);
 }
