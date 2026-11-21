@@ -23,7 +23,7 @@
 * Returns     : None.
 */
 void initRandom() {
-    srand((unsigned)time(NULL) ^ (unsigned)getpid());
+    srand((unsigned int)time(NULL) ^ (unsigned int)getpid());
 }
 
 /*
