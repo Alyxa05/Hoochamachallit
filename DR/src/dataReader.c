@@ -34,6 +34,7 @@ int main(void)
     ipcKey = ftok(".", HOOCH_KEY_ID);
     if (ipcKey == -1)
     {
+        // # drop after test
         perror("(DR) ftok failed");
         return 1;
     }
@@ -45,6 +46,7 @@ int main(void)
         msgQId = msgget(ipcKey, IPC_CREAT | 0660);
         if (msgQId == -1)
         {
+            // # Strip this perror before final submission (no screen output allowed)
             perror("(DR) msgget failed");
             return 2;
         }
@@ -54,6 +56,7 @@ int main(void)
     shmId = shmget(ipcKey, sizeof(MasterList), IPC_CREAT | 0660);
     if (shmId == -1)
     {
+        // # drop after test
         perror("(DR) shmget failed");
         msgctl(msgQId, IPC_RMID, NULL);
         return 3;
@@ -63,6 +66,7 @@ int main(void)
     master = (MasterList*)shmat(shmId, NULL, 0);
     if (master == (MasterList*)-1)
     {
+        // # drop after test
         perror("(DR) shmat failed");
         shmctl(shmId, IPC_RMID, NULL);
         msgctl(msgQId, IPC_RMID, NULL);
@@ -134,6 +138,7 @@ int main(void)
 
         if (errno != ENOMSG)
         {
+            // # drop after test
             perror("(DR) msgrcv failed");
             break;
         }

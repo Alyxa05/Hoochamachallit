@@ -1,19 +1,22 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -I../Common/inc
+CFLAGS = -Wall -Wextra -Iinc -I../Common/inc
 
+OBJS = obj/datareader.o obj/dr_helpers.o
 TARGET = bin/datareader
-SRC = src/datareader.c
-OBJ = obj/datareader.o
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	mkdir -p bin
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
+$(TARGET): $(OBJS)
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
-$(OBJ): $(SRC) ../Common/inc/hooch.h
-	mkdir -p obj
-	$(CC) $(CFLAGS) -c -o $(OBJ) $(SRC)
+obj/datareader.o: src/datareader.c inc/dr_helpers.h ../Common/inc/hooch.h
+	@mkdir -p obj
+	$(CC) $(CFLAGS) -c src/datareader.c -o obj/datareader.o
+
+obj/dr_helpers.o: src/dr_helpers.c inc/dr_helpers.h ../Common/inc/hooch.h
+	@mkdir -p obj
+	$(CC) $(CFLAGS) -c src/dr_helpers.c -o obj/dr_helpers.o
 
 clean:
 	rm -rf obj bin
