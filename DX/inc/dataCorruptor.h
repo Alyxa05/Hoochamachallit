@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <signal.h>
 
 #define ATTACH_ATTEMPTS 100
 
@@ -48,6 +49,6 @@ int defineAction(int wheelResult);
 
 int targetDCID(int wheelResult, MasterList* master);
 
-void kill_DC(int action, int targetDCID, int shmId, MasterList* master);
+void kill_DC(int targetDCID, int shmId, MasterList* master);
 
 #endif

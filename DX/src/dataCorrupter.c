@@ -29,13 +29,14 @@ int main() {
         //Get the shared memory id
         shmKey = ftok(".", HOOCH_KEY_ID);
 
-        //sleep if failed
+        //sleep if failed to get a shared memory id
         if (shmKey == -1) 
         {
             sleep(10);
         }
         else
         {
+            //get the shared memory id
             shmId = shmget(shmKey, sizeof(MasterList), 0660);            
             shmAttached = true;
 
@@ -83,20 +84,24 @@ int main() {
         //4. execute action that was selected
             //if killing a process send SIGHUP
             //when delteing files, killing processes or removing messages, ensure to handle potential errors
-        if(corruptAction == no_action)
+        if(corruptAction == kill_a_DC)
         {
+            int targetDCIndex = getTargetDCIndex(wheelResult, master);
+            kill_DC(targetDCIndex, shmId, master);
+            //log killing a DC
+            //"{DATETIMESTAMP} : DX spun the wheel and got {wheelResult} - killing a DC"
+        }
+        else if(corruptAction == no_action)
+        {
+            
         }
         else if(corruptAction == delete_msgQ)
         {
+            deleteMsgQueue(shmKey);
+
             //log message queue deletion
             //"{DATETIMESTAMP} : DX spun the wheel and got {wheelResult} - deleting message queue"
-        }
-        else if(corruptAction == kill_a_DC)
-        {
-            int targetDCID = getTargetDCID(wheelResult, master);
-            kill_DC(corruptAction, targetDCID, shmId, master);
-            //log killing a DC
-            //"{DATETIMESTAMP} : DX spun the wheel and got {wheelResult} - killing a DC"
+
         }
         else
         {
@@ -104,7 +109,7 @@ int main() {
             //"{DATETIMESTAMP} : DX spun the wheel and got {wheelResult} - error selecting action"
         }
 
-        executeCorruption(corruptAction, msgQueueId, shmId, master);
+
     }
 
 }
