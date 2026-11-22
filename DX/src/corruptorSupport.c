@@ -11,10 +11,13 @@
 *   supporting file for the data corrupter process. This file contains supporting functions for the data corruptor.
 *   
 */
+#define _POSIX_C_SOURCE 200809L
 
 #include "dataCorruptor.h"
 #include "hooch.h"
 #include <sys/ipc.h>
+#include <signal.h>
+
 
 
 
@@ -54,7 +57,7 @@ int defineAction(int action) {
     return corruptAction; 
 }
 
-int targetDCIndex(int wheelResult, MasterList* master) {
+int getTargetDCIndex(int wheelResult) {
     
     int targetDCIndex;
     //cool way to stack cases for multiple conditions that execute one block
@@ -63,41 +66,41 @@ int targetDCIndex(int wheelResult, MasterList* master) {
         case 1:
         case 4:
         case 11:
-            targetDCIndex = 1;
+            targetDCIndex = 0;
             break;
 
         case 3:
         case 6:
         case 13:
-            targetDCIndex = 2;
+            targetDCIndex = 1;
             break;
         
         case 2:
         case 5:
         case 15:
-            targetDCIndex = 3;
+            targetDCIndex = 2;
             break;
         
         case 7:
-            targetDCIndex = 4;
+            targetDCIndex = 3;
             break;
         case 9:
-            targetDCIndex = 5;
+            targetDCIndex = 4;
             break;
         case 12:        
-            targetDCIndex = 6;
+            targetDCIndex = 5;
             break;
         case 14:
-            targetDCIndex = 7;
+            targetDCIndex = 6;
             break;
         case 16:
-            targetDCIndex = 8;
+            targetDCIndex = 7;
             break;
         case 18:
-            targetDCIndex = 9;
+            targetDCIndex = 8;
             break;
         case 20:
-            targetDCIndex = 10;
+            targetDCIndex = 9;
             break;
         default:
             //error selecting action
@@ -108,45 +111,125 @@ int targetDCIndex(int wheelResult, MasterList* master) {
     return targetDCIndex; // Placeholder return
 }
 
-void kill_DC(int targetDCIndex, int shmId, MasterList* master) 
+pid_t kill_DC(int targetDCIndex, MasterList* master) 
 {
     pid_t pidToKill;
+
+    //check in case of error
+    if(targetDCIndex < 0 || targetDCIndex>9)
+    {
+        return -1;
+    }
+    if(master == NULL)
+    {
+        return -1;
+    }
 
     pidToKill = master->dc[targetDCIndex].dcProcessID;
 
     if (kill(pidToKill, SIGHUP) == -1) 
     {
-        // perror("Failed to send SIGHUP to DC process");
-        //log unsuccessful attempt to send SIGHUP to DC
+        return -1; //error indicator
     } 
-    else 
-    {
-        //log successful kill attempt
-    }
+    // else 
+    // {
+    //     //kill was successful, return the pid
+    // }
     
-    return;
+    return pidToKill;
 
 }
 
 void deleteMsgQueue(int shmKey) 
 {
     int msgQId = msgget(shmKey, 0);
-    if (msgQId != -1) 
+    if (msgQId != -1)
     {
         //CONTROL to remove the queue, 3rd argument is usually null
-        if (msgctl(msgQId, IPC_RMID, NULL) == -1) 
+        if (msgctl(msgQId, IPC_RMID, NULL) == -1)
         {
             //log unsuccessful attempt to delete message queue
             // perror("Failed to delete message queue");
         } 
-        else 
+        else
         {
             //log successful deletion of message queue
         }
-    } 
-    else 
+    }
+    else
     {
         // perror("Message queue does not exist");
         //log unsuccessful attempt to delete message queue
     }
+}
+
+//logging functions
+
+void generateLogMsg(char* buffer, size_t size, int wheelResult, int targetDCIndex, pid_t victimID, int corruptAction)
+{
+    time_t now = time(NULL);
+    
+    char timestamp[20];
+    struct tm *time_data = localtime(&now);
+    //time formatting https://www.geeksforgeeks.org/cpp/strftime-function-in-c/
+    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", time_data);
+
+    switch(corruptAction)
+    {
+        case kill_a_DC:
+            if(victimID == -1)
+            {
+                snprintf(buffer, size, 
+                    "[%s] : WOD Action %d - DC-%02d [%d] FAILED TO TERMINATE",timestamp, wheelResult, (targetDCIndex+1), (int)victimID
+                );
+            }
+            else{
+
+                snprintf(buffer, size, 
+                    "[%s] : WOD Action %d - DC-%02d [%d] TERMINATED",timestamp, wheelResult, (targetDCIndex+1), (int)victimID
+                );
+            }
+            break;
+        case delete_msgQ:
+            snprintf(buffer, size, 
+                "[%s] : DX deleted the msgQ - the DR/DCs can't talk anymore - exiting",
+                timestamp
+            );
+            break;
+        case msgQ_Gone:
+            snprintf(buffer, size, 
+                "[%s] : DX detected that msgQ is gone - assuming DR/DCs done",
+                timestamp
+            );
+            break;
+        case cannot_attach:
+            snprintf(buffer, size, 
+                "[%s] : DX was unable to get shared memory id after 100 attempts - exiting",
+                timestamp
+            );
+            break;
+        default:
+            snprintf(buffer, size, 
+                "[%s] : Unknown action log",
+                timestamp
+            );
+
+    }
+
+    return; 
+}
+
+void writeLog(const char *logMessage)
+{
+    //printf("LOGGING");
+    FILE *logFile = fopen("/tmp/dataCorruptor.log", "a");
+
+    if (logFile == NULL)
+    {
+        //perror("fopen");
+        return;
+    }
+
+    fprintf(logFile, "%s\n", logMessage);
+    fclose(logFile);
 }

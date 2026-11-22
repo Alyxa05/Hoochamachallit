@@ -1,6 +1,6 @@
 #makefile for DX, the data corruptor
 CCOMPILER = gcc
-CFLAGS = -std=11 -Wall -Wextra -Werror -pedantic
+CFLAGS = -std=c11
 
 #variables formatted as
 #{varrName} = {folderName or path}
@@ -10,9 +10,9 @@ OBJ = obj
 
 TARGETPROGRAM = ../DR/datacorruptor
 
-SOURCES = $(SRC)/datacorruptor.c 
-HEADERS = $(INC)/datacorruptor.h ../Common/inc/hooch.h
-OBJECTS = $(OBJ)/datacorruptor.o
+SOURCES = $(SRC)/dataCorruptor.c $(SRC)/corruptorSupport.c
+HEADERS = $(INC)/dataCorruptor.h ../Common/inc/hooch.h
+OBJECTS = $(OBJ)/dataCorruptor.o $(OBJ)/corruptorSupport.o
 
 
 $(TARGETPROGRAM): $(OBJECTS)
@@ -20,10 +20,12 @@ $(TARGETPROGRAM): $(OBJECTS)
 
 
 #compilation of the object files
-$(OBJ)/datacorruptor.o: $(SOURCES) $(HEADERS)
-	$(CCOMPILER) $(CFLAGS) -I$(HEADERS) -c $(SOURCES) -o $(OBJECTS)
+$(OBJ)/dataCorruptor.o: $(SRC)/dataCorruptor.c $(HEADERS)
+	$(CCOMPILER) $(CFLAGS) -I$(INC) -I../Common/inc -c $(SRC)/dataCorruptor.c -o $(OBJ)/dataCorruptor.o
 
+$(OBJ)/corruptorSupport.o: $(SRC)/corruptorSupport.c $(HEADERS)
+	$(CCOMPILER) $(CFLAGS) -I$(INC) -I../Common/inc -c $(SRC)/corruptorSupport.c -o $(OBJ)/corruptorSupport.o
 
 clean:
-	rm -f ./obj/*.o 
+	rm -f ./obj/*.o
 	rm -f ../DR/datacorruptor
