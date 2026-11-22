@@ -46,7 +46,7 @@ int main(void)
         msgQId = msgget(ipcKey, IPC_CREAT | 0660);
         if (msgQId == -1)
         {
-            // # Strip this perror before final submission (no screen output allowed)
+            // # Drop this before submit
             perror("(DR) msgget failed");
             return 2;
         }
@@ -107,7 +107,7 @@ int main(void)
                 if (foundIndex != -1)
                 {
                     snprintf(logBuf, sizeof(logBuf),
-                        "DC-%02d [%d] has gone OFFLINE - removing from master-list",
+                        "DC-%02d [%d] has gone -~ OFFLINE ~- - removing from master-list",
                         foundIndex + 1, (int)msg.machinePid);
                     writeDrLog(logBuf);
                     removeDcAt(master, foundIndex);
@@ -117,7 +117,7 @@ int main(void)
             {
                 master->dc[foundIndex].lastTimeHeardFrom = now;
                 snprintf(logBuf, sizeof(logBuf),
-                    "DC-%02d [%d] updated in the master list - MSG RECEIVED - Status %d (%s)",
+                    "DC-%02d [%d] updated in the master list -~ MSG RECEIVED ~- Status %d (%s)",
                     foundIndex + 1, (int)msg.machinePid, msg.state, getStatusText(msg.state));
                 writeDrLog(logBuf);
             }
@@ -131,7 +131,7 @@ int main(void)
                 sawAnyDc = 1;
 
                 snprintf(logBuf, sizeof(logBuf),
-                    "DC-%02d [%d] added to the master list - NEW DC - Status %d (%s)",
+                    "DC-%02d [%d] added to the master list -~ NEW DC ~- Status %d (%s)",
                     newIdx + 1, (int)msg.machinePid, msg.state, getStatusText(msg.state));
                 writeDrLog(logBuf);
             }
@@ -139,8 +139,11 @@ int main(void)
 
         if (errno != ENOMSG)
         {
-            // # drop after test
-            perror("(DR) msgrcv failed");
+            if (errno == EIDRM || errno == EINVAL)
+            {
+				//DX deleted queue so drop that
+                writeDrLog("Message queue removed - DR terminating");
+            }
             break;
         }
 
@@ -149,7 +152,7 @@ int main(void)
             time_t now = time(NULL);
             int i;
 
-            // Walk backwards so collapsing a later index does not skip earlier ones
+            // Walk backwards so collapsing a later index doesnt skip earlier ones
             for (i = master->numberOfDCs - 1; i >= 0; i--)
             {
                 if (difftime(now, master->dc[i].lastTimeHeardFrom) > DC_TIMEOUT_SECONDS)
@@ -165,7 +168,7 @@ int main(void)
             }
         }
 
-        // Once we've seen DCs and the count drops back to zero, time to pack it in
+        // Once we've seen DCs and the count drops back to zero we gonna pack it in
         if (sawAnyDc && master->numberOfDCs == 0)
         {
             writeDrLog("All DCs have gone offline or terminated - DR TERMINATING");
