@@ -17,10 +17,8 @@
 #define ATTACH_ATTEMPTS 100
 #define LOG_MSG_LEN 255
 
-//defining wheel of destruction compund conditions as constants for readability
-
+//defining wheel of destruction compund conditions as replacements for readability
 #define deleteMsgQCondition ((action == 10)||(action == 17))
-
 #define noActionCondition ((action == 0)||(action == 8)||(action == 19))
 
 //defining wheel of destruction actions as constants to remove magic numbers
