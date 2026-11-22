@@ -8,7 +8,7 @@ SRC = src
 INC = inc
 OBJ = obj
 
-TARGETPROGRAM = ../DC/bin/dataCreator
+TARGETPROGRAM = ../DC/bin/datacreator
 
 SOURCES = $(SRC)/dataCreator.c
 HEADERS = $(INC)/DC.h ../Common/inc/hooch.h
@@ -27,7 +27,7 @@ $(OBJ)/dataCreator.o: $(SOURCES) $(HEADERS)
 
 clean:
 	rm -rf obj bin
-	rm -f ../DR/bin/dataCreator
+	rm -f ../DR/bin/datacreator
 
 .PHONY: all clean
 >>>>>>> 401e01e (makefile bs)
