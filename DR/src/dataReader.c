@@ -34,8 +34,6 @@ int main(void)
     ipcKey = ftok(".", HOOCH_KEY_ID);
     if (ipcKey == -1)
     {
-        // # drop after test
-        perror("(DR) ftok failed");
         return 1;
     }
 
@@ -46,8 +44,6 @@ int main(void)
         msgQId = msgget(ipcKey, IPC_CREAT | 0660);
         if (msgQId == -1)
         {
-            // # Drop this before submit
-            perror("(DR) msgget failed");
             return 2;
         }
     }
@@ -56,23 +52,19 @@ int main(void)
     shmId = shmget(ipcKey, sizeof(MasterList), IPC_CREAT | 0660);
     if (shmId == -1)
     {
-        // # drop after test
-        perror("(DR) shmget failed");
         msgctl(msgQId, IPC_RMID, NULL);
         return 3;
     }
-    
+
     // Attaching shared memory and set starting values
     master = (MasterList*)shmat(shmId, NULL, 0);
     if (master == (MasterList*)-1)
     {
-        // # drop after test
-        perror("(DR) shmat failed");
         shmctl(shmId, IPC_RMID, NULL);
         msgctl(msgQId, IPC_RMID, NULL);
         return 4;
     }
-    
+
     //printf("DR queue id = %d\n", msgQId); //debug line
     master->msgQueueID = msgQId;
     master->numberOfDCs = 0;
@@ -141,7 +133,7 @@ int main(void)
         {
             if (errno == EIDRM || errno == EINVAL)
             {
-				//DX deleted queue so drop that
+                //DX deleted queue so drop that
                 writeDrLog("Message queue removed - DR terminating");
             }
             break;
