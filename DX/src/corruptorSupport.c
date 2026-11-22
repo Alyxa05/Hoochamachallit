@@ -116,14 +116,15 @@ pid_t kill_DC(int targetDCIndex, MasterList* master)
     pid_t pidToKill;
 
     //check in case of error
-    if(targetDCIndex < 0 || targetDCIndex>9)
-    {
-        return -1;
-    }
     if(master == NULL)
     {
         return -1;
     }
+    if(targetDCIndex < 0 || targetDCIndex >= master->numberOfDCs)
+    {
+        return -1;
+    }
+
 
     pidToKill = master->dc[targetDCIndex].dcProcessID;
 
@@ -143,6 +144,7 @@ pid_t kill_DC(int targetDCIndex, MasterList* master)
 void deleteMsgQueue(int shmKey) 
 {
     int msgQId = msgget(shmKey, 0);
+    //printf("DX deleting queue id = %d\n", msgQId); //debug line 
     if (msgQId != -1)
     {
         //CONTROL to remove the queue, 3rd argument is usually null
@@ -180,7 +182,7 @@ void generateLogMsg(char* buffer, size_t size, int wheelResult, int targetDCInde
             if(victimID == -1)
             {
                 snprintf(buffer, size, 
-                    "[%s] : WOD Action %d - DC-%02d [%d] FAILED TO TERMINATE",timestamp, wheelResult, (targetDCIndex+1), (int)victimID
+                    "[%s] : WOD Action %d - DC-%02d [%d] this DC does not exist",timestamp, wheelResult, (targetDCIndex+1), (int)victimID
                 );
             }
             else{

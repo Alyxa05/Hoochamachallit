@@ -61,7 +61,7 @@ int main(void)
         msgctl(msgQId, IPC_RMID, NULL);
         return 3;
     }
-
+    
     // Attaching shared memory and set starting values
     master = (MasterList*)shmat(shmId, NULL, 0);
     if (master == (MasterList*)-1)
@@ -72,7 +72,8 @@ int main(void)
         msgctl(msgQId, IPC_RMID, NULL);
         return 4;
     }
-
+    
+    //printf("DR queue id = %d\n", msgQId); //debug line
     master->msgQueueID = msgQId;
     master->numberOfDCs = 0;
 
