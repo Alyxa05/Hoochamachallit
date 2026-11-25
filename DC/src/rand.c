@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 /*
 * File         :
@@ -14,11 +14,10 @@
 *   Contains all rand operations for security
 */
 
-
 /*
 * Function    : initRandom
-* Description : Seeds the pseudo-random number generator using current time and PID
-*               so simultaneous DC instances generate distinct sequences.
+* Description :
+*   Seeds the randomness.
 * Parameters  : None.
 * Returns     : None.
 */
@@ -28,8 +27,8 @@ void initRandom() {
 
 /*
 * Function    : initRandom
-* Description : Seeds the pseudo-random number generator using current time and PID
-*               so simultaneous DC instances generate distinct sequences.
+* Description : 
+*   Random for message signal generation.
 * Parameters  : None.
 * Returns     : None.
 */
@@ -39,12 +38,11 @@ int msgActual() {
 
 /*
 * Function    : initRandom
-* Description : Seeds the pseudo-random number generator using current time and PID
-*               so simultaneous DC instances generate distinct sequences.
+* Description : 
+*   Random for time between messages.
 * Parameters  : None.
 * Returns     : None.
 */
 int msgTime() {
     return 10 + (rand() % 21);
 }
-

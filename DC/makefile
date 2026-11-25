@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 #makefile for dataCreator
 CCompiler = gcc
 CFLAGS = -Wall -Wextra -I../Common/inc -Iinc
@@ -30,4 +28,3 @@ clean:
 	rm -f ../DR/bin/datacreator
 
 .PHONY: all clean
->>>>>>> 401e01e (makefile bs)
